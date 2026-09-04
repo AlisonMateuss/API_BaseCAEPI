@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Body, APIRouter, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from Services.CAService import CAService
+from Services.service_container import caService
 
 from models.exemplosRequest import ExemplosRequest
 from models.requestParaExportarArquivo import RequestParaExportarArquivo
@@ -12,7 +12,7 @@ from models.infoCADto import InfoCADto
 from models.responsesModels import ResponsesModels
 
 router = APIRouter(tags=["Certificado de Aprovação"])
-caService  = CAService()
+
 
 
 @router.get('/CA/{ca}',
