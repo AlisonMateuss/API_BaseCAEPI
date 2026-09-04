@@ -361,12 +361,25 @@ class BaseDadosCaEPI:
         return self.baseDadosDF
     
     def retornarBaseDados(self) -> pd.DataFrame:
-        if not os.path.exists(self.nomeArquivoBase):
-            print("Aguarde o download...")        
+        print("Verificando base oficial do CAEPI...")
+    
+        try:
             self._baixarArquivoBaseCaEPI()
-            print(f"Download concluido!")
-
+            print("Base oficial do CAEPI atualizada na inicialização.")
+    
+        except Exception as e:
+            print(f"Não foi possível atualizar a base CAEPI: {e}")
+    
+            if not os.path.exists(self.nomeArquivoBase):
+                raise RuntimeError(
+                    "Não foi possível baixar a base CAEPI "
+                    "e não existe uma base local disponível."
+                )
+    
+            print("Utilizando a base CAEPI disponível localmente.")
+    
         self._transformarEmDataFrame()
+    
         return self.baseDadosDF
 
     
