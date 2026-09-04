@@ -1,23 +1,20 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from Services.CAService import CAService
+from Services.service_container import caService
 
 
 scheduler = BackgroundScheduler(
     timezone="America/Sao_Paulo"
 )
 
-ca_service = None
 
 
 def iniciar_scheduler():
-    global ca_service
 
     if scheduler.running:
         return
 
-    ca_service = CAService()
 
     scheduler.add_job(
         ca_service._atualizarBaseDados,
