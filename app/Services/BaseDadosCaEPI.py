@@ -8,7 +8,7 @@ import re
 
 class BaseDadosCaEPI:
     baseDadosDF = None 
-    nomeArquivoBase = 'tgg_export_caepi.txt'
+    nomeArquivoBase = 'base-de-dados-do-CAEPI.csv'
     nomeArquivoConfigNomesColunas = 'config_nomes_colunas.csv'
     nomeArquivoErros = 'CAs_com_erros.txt'    
     urlBase = 'ftp.mtps.gov.br'
@@ -42,28 +42,47 @@ class BaseDadosCaEPI:
         self = self
 
     def _baixarArquivoBaseCaEPI(self):
-        if os.path.exists(self.nomeArquivoBase):
-            os.remove(self.nomeArquivoBase)
-
-        ftp = ftplib.FTP(self.urlBase)
-        ftp.login()
-        ftp.cwd(self.caminho)
-
-        nomeArquivoZip = 'tgg_export_caepi.zip'
-        r = io.BytesIO()
-
-        ftp.retrbinary(f'RETR {nomeArquivoZip}', r.write)
-
-        arquivoZip = zipfile.ZipFile(r)
-
-        arquivoZip.extractall()
+        import requests
     
-    def _transformarEmDataFrame(self):          
-        listaCas = self._retornarCAsSemErros()
-        cols = listaCas[0]
-        self.baseDadosDF = pd.DataFrame(listaCas, columns=cols)        
+        print("Baixando base de dados CAEPI...")
+    
+        url = "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/equipamentos-de-protecao-individual-epi/base-de-dados-do-caepi-19052025.csv"
+    
+        arquivoTemporario = self.nomeArquivoBase + ".tmp"
+    
+        resposta = requests.get(
+            url,
+            stream=True,
+            timeout=300,
+            headers={
+                "User-Agent": "Mozilla/5.0 CAEPI-API"
+            }
+        )
+    
+        resposta.raise_for_status()
+    
+        with open(arquivoTemporario, "wb") as arquivo:
+            for bloco in resposta.iter_content(chunk_size=1024 * 1024):
+                if bloco:
+                    arquivo.write(bloco)
+    
+        os.replace(arquivoTemporario, self.nomeArquivoBase)
+    
+        print("Download da base CAEPI concluído.")
+    
+    def _transformarEmDataFrame(self):
+        print("Lendo base de dados CAEPI...")
 
-        self.baseDadosDF.columns = self.__retornaNomesColunas()
+        self.baseDadosDF = pd.read_csv(
+            self.nomeArquivoBase,
+            sep=';',
+            dtype=str,
+            encoding='utf-8-sig'
+        )
+
+        self.baseDadosDF.columns = self.nomeColunas
+
+        print(f"Base carregada: {len(self.baseDadosDF)} registros.")
 
     def __retornaNomesColunas(self):
         arquivo = open(self.nomeArquivoConfigNomesColunas, encoding='UTF-8')
