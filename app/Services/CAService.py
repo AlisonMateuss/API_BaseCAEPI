@@ -60,7 +60,10 @@ class CAService:
         return [ca for ca in listaCAs if ca not in df['RegistroCA'].values]
     
     def _atualizarBaseDados(self):
-        self.baseDadosDF = BaseDadosCaEPI().retornarBaseDados()
+        print("Iniciando atualização da Base de Dados...")
+    
+        self.baseDadosDF = BaseDadosCaEPI().atualizarBaseDados()
+    
         print("Base de Dados atualizada em", datetime.now())
 
     def _defineHorarioAtualizacao(self):
