@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Body, APIRouter
+from fastapi import Body, APIRouter, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from Services.CAService import CAService
@@ -89,3 +89,22 @@ def exportarJSON(request: Annotated[RequestParaExportarJson, Body(
         return ResponsesModels().responsesExportarCAsNaoEncontrado(respExportarJson['CAsNaoEncontrados'])
     
     return respExportarJson['JSON']
+
+@router.post('/atualizarBaseDados',
+            status_code=200,
+            summary="Atualiza manualmente a base de dados do CAEPI",
+            description="Baixa novamente a base oficial do CAEPI e atualiza os dados utilizados pela API.")
+async def atualizarBaseDados():
+    try:
+        caService._atualizarBaseDados()
+
+        return {
+            "success": True,
+            "message": "Base de dados do CAEPI atualizada com sucesso."
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao atualizar a base CAEPI: {str(e)}"
+        )
