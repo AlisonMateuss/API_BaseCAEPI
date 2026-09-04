@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 import uvicorn
 from routers import certificadoApovacao
 from scheduler import iniciar_scheduler, parar_scheduler
-
+from Services.service_container import caService
 from fastapi.middleware.cors import CORSMiddleware
 
 tag_ca = [
@@ -34,10 +34,20 @@ app.add_middleware(
 
 app.include_router(certificadoApovacao.router)
 
-
 @app.on_event("startup")
 async def startup_event():
+    print("Verificando atualização da base CAEPI na inicialização...")
+
+    try:
+        caService._atualizarBaseDados()
+        print("Base CAEPI atualizada na inicialização.")
+
+    except Exception as e:
+        print(f"Não foi possível atualizar a base na inicialização: {e}")
+        print("A API continuará utilizando a base disponível localmente.")
+
     iniciar_scheduler()
+
 
 
 @app.on_event("shutdown")
