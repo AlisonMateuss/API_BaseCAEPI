@@ -75,10 +75,18 @@ class BaseDadosCaEPI:
 
         self.baseDadosDF = pd.read_csv(
             self.nomeArquivoBase,
-            sep=';',
+            sep=None,
+            engine='python',
             dtype=str,
             encoding='utf-8-sig'
         )
+
+        if len(self.baseDadosDF.columns) != len(self.nomeColunas):
+            raise ValueError(
+                f"Formato inesperado da base CAEPI: "
+                f"{len(self.baseDadosDF.columns)} colunas encontradas, "
+                f"esperadas {len(self.nomeColunas)}."
+            )
 
         self.baseDadosDF.columns = self.nomeColunas
 
