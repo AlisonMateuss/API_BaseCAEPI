@@ -111,6 +111,17 @@ class BaseDadosCaEPI:
     def _criarArquivoComErros(self, listaCAsInvalidos:list) -> None:
         with open(self.nomeArquivoErros, 'w') as f:
             f.writelines(listaCAsInvalidos)
+
+    def atualizarBaseDados(self):
+        print("Iniciando atualização da base CAEPI...")
+    
+        self._baixarArquivoBaseCaEPI()
+    
+        print("Base CAEPI atualizada com sucesso!")
+    
+        self._transformarEmDataFrame()
+    
+        return self.baseDadosDF
     
     def retornarBaseDados(self) -> pd.DataFrame:
         if not os.path.exists(self.nomeArquivoBase):
