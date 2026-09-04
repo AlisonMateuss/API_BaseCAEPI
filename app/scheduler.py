@@ -9,15 +9,12 @@ scheduler = BackgroundScheduler(
 )
 
 
-
 def iniciar_scheduler():
-
     if scheduler.running:
         return
 
-
     scheduler.add_job(
-        ca_service._atualizarBaseDados,
+        caService._atualizarBaseDados,
         trigger=CronTrigger(
             hour=20,
             minute=10,
